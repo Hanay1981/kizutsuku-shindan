@@ -151,7 +151,7 @@
     <div class="box">
       <h2>その結果、こうなります</h2>
       <p>「別に傷つくつもりはないのに、なぜかこの人の前だと消耗する」——その感覚を、相手の性格の話にせず、あなたとその人の間で実際に起きていることとして扱えるようになります。何が自分を傷つけているのかが具体的になり、同じことを繰り返さないための一歩が見えてきます。</p>
-      <div class="note">全25問・所要時間の目安は約4分です。<br>診断は無料で最後まで答えられます。タイプ名と3つの軸のスコアは、その場で見られます。盲点・次の一歩・場面別の見え方などの続きは、noteの記事（100円）にある合言葉で開けます。</div>
+      <div class="note">全25問・所要時間の目安は約4分です。<br>診断は無料で最後まで答えられます。タイプ名、3つの軸のスコア、この関係の中でのあなたの位置づけまでは、その場で見られます。気づきにくい盲点・次の一歩・場面別の見え方は、noteの記事（100円）にある合言葉で開けます。</div>
     </div>
 
     <div class="box">
@@ -444,6 +444,21 @@ const BLINDSPOTS = {
 };
 const A3_HIGH_NOTE = '本音を言いにくい状態が続いている場合は、まずその人に直接伝える前に、安全な第三者（信頼できる人や記録）に言葉にする練習から始めてみてください。';
 
+/* 盲点の「冒頭だけ見せる」プレビュー。無料部分で、続きが気になる程度に最初の1〜2文だけを見せる。 */
+function blindPreviewText(r){
+  let fullText;
+  if(r.blindMode === 'single'){
+    fullText = BLINDSPOTS[r.blindKey].text;
+  } else if(r.blindMode === 'uniform'){
+    const titles = r.topFacets.map(f => BLINDSPOTS[f].title);
+    fullText = `「${titles.join('」「')}」が、どれか一つだけ際立っているわけではなく、同じくらいのレベルで重なって出ています。`;
+  } else {
+    fullText = '「比較のクセ」「期待とのズレ」「読めなさ」「自責への転化」「積み重なり感」という5つの項目では、際立って気になる点は見られませんでした。';
+  }
+  const sentences = fullText.split('。').filter(s => s.length > 0);
+  return sentences.slice(0, 2).join('。') + '。';
+}
+
 /* ===================== 場面別（家族・恋人・友人・職場）===================== */
 const A2_FRAG_SCENE = {
   family: {
@@ -482,26 +497,28 @@ function sceneText(sceneKey, a1, a2, a3){
   return A1_FRAG[a1] + A2_FRAG_SCENE[sceneKey][a2] + A3_FRAG_SCENE[a3];
 }
 
-/* ===================== 関係の中での位置づけ =====================
+/* ===================== 関係の中での位置づけ（総括・無料部分の冒頭に表示） =====================
    「相手が何を感じているか」は推測できないため、行動パターンから見える
-   「関係の中であなたが置かれやすい位置づけ（役割）」として、断定ではなく「〜になりやすい」の言い方で書く。 */
-const A1_POS = {
-  low:  '気持ちの整理がついた関係の中にいる',
-  mid:  '良い面と気になる面の両方を抱えながら付き合っている',
-  high: '強い好意と強い違和感を同時に抱えながら、その人のそばにいる',
+   「関係の中であなたが置かれやすい位置づけ（役割）」として、断定ではなく「〜になりやすい」の言い方で書く。
+   3軸それぞれを厚めの文章にし、最後に構造の話であって性格の優劣ではないという一文で締める。 */
+const A1_POS_LONG = {
+  low:  '好きな気持ちと苦手な気持ちが入り混じることが少ないぶん、この関係の中でのあなたの立ち位置は比較的はっきりしています。「好き」か「合わない」かで、そのつど大きく迷わずに判断できる分、気持ちの面では消耗しにくい位置にいると言えます。',
+  mid:  '好きなところと気になるところの両方を抱えながら付き合っているぶん、この関係の中でのあなたは、気持ちを都度調整しながらバランスを取る役回りになりやすいようです。「全部は手放せないけれど、全部を受け入れているわけでもない」という宙ぶらりんな立ち位置が、じわじわと負担になっている可能性があります。',
+  high: '強い好意と強い違和感を同時に抱えているぶん、この関係の中でのあなたは、気持ちの整理がつかないまま、その人のそばにい続けるという難しい位置に置かれやすいようです。良い記憶があるからこそ離れがたく、かといって違和感も消えない、という板挟みの立ち位置になっている可能性があります。',
 };
-const A2_POS = {
-  low:  '身動きを自由に取れる位置',
-  mid:  '少し縛られながらも、まだ動ける位置',
-  high: '簡単には動けない位置に置かれやすい',
+const A2_POS_LONG = {
+  low:  '距離を取りやすい構造にあるぶん、この関係の中であなたは、いつでも自分の意思で関わり方を選べる立場にいます。しがらみに縛られて我慢を重ねる必要が少ない、自由度の高い位置づけだと言えます。',
+  mid:  '完全に自由ではないものの、まったく身動きが取れないわけでもないぶん、この関係の中であなたは、状況を見ながら距離感を調整していく立場になりやすいようです。今すぐ大きく動く必要はなくても、少しずつ関わり方を変えていける余地は残っています。',
+  high: '立場や状況、積み重ねてきた時間のために簡単には離れられない構造にあるぶん、この関係の中であなたは、自分の意思だけでは関わり方を変えにくい位置に置かれやすいようです。嫌でも関わり続けなければならない場面が多く、それ自体がさらに消耗を積み重ねる原因になっている可能性があります。',
 };
-const A3_POS = {
-  low:  '言いたいことを言える立場',
-  mid:  '言うことを選びながら付き合う立場',
-  high: '本音を飲み込みながら、その場を保っている立場',
+const A3_POS_LONG = {
+  low:  '思ったことを比較的そのまま伝えられるぶん、この関係の中であなたは、自分の希望や不満を表に出せる立場にいます。言いたいことを飲み込み続けて消耗する、という負担は少ない位置づけです。',
+  mid:  '言うかどうかをその都度選びながら付き合っているぶん、この関係の中であなたは、本音と建前を使い分ける調整役になりやすいようです。言えるときと言えないときの差が、相手にとっても「読めない人」に見えてしまう可能性があります。',
+  high: '本音を言うと関係が変わってしまう気がして、言いたいことを飲み込むのが習慣になっているぶん、この関係の中であなたは、自分の希望を表に出せないまま、その場を保ち続ける役割になりやすいようです。言わないことがいつの間にか「言えない」に変わり、本音と行動のズレがさらに積み重なっていく可能性があります。',
 };
 function relationalPosition(a1,a2,a3){
-  return `あなたは、${A1_POS[a1]}まま、${A2_POS[a2]}で、${A3_POS[a3]}になりやすいようです。`;
+  return A1_POS_LONG[a1] + A2_POS_LONG[a2] + A3_POS_LONG[a3]
+    + 'ここまでの3つを重ねて見えてくるのは、あなた個人の性格の弱さではなく、この関係そのものが持つ構造です。あなたがこの位置づけになりやすいのは、あなたが未熟だからでも、我慢が足りないからでもありません。';
 }
 
 function computeResult(){
@@ -535,16 +552,16 @@ function computeResult(){
 function renderResult(r){
   const unlocked = isUnlocked();
   const name = typeName(r.a1Band, r.a2Band, r.a3Band);
-  const desc = typeDesc(r.a1Band, r.a2Band, r.a3Band);
-  const firstSentence = desc.split('。')[0] + '。';
+  const position = relationalPosition(r.a1Band, r.a2Band, r.a3Band);
   let html = '';
 
   /* ---------- 無料で見せる部分 ---------- */
   html += `<div class="result-hero">
     <div class="tag">診断結果</div>
     <h2>あなたとその人は「${name}」</h2>
-    <p>${unlocked ? desc : firstSentence}</p>
   </div>`;
+  html += `<div class="sec-label">この関係の中での位置づけ</div>`;
+  html += `<div class="box"><p>${position}</p></div>`;
 
   if(r.reliability === '参考程度'){
     html += `<div class="badge">診断の一貫性：参考程度 — 回答の振れ幅が少なく、実際の傾向をうまく拾えていない可能性があります。できれば、その人との普段のやり取りによりしっくりくる回答で、もう一度試してみてください</div>`;
@@ -567,11 +584,12 @@ function renderResult(r){
 
   /* ---------- 合言葉で開く部分 ---------- */
   if(!unlocked){
-    const lockedSections = ['結果 — 気づきにくい盲点','行動 — 次の一歩'];
-    if(r.a2Band === 'high') lockedSections.push('距離の取り方に悩んだら');
-    lockedSections.push('場面別に見ると（家族・恋人・友人・職場）','この関係の中での位置づけ');
+    const restSections = ['行動 — 次の一歩'];
+    if(r.a2Band === 'high') restSections.push('距離の取り方に悩んだら');
+    restSections.push('場面別に見ると（家族・恋人・友人・職場）');
     html += `<div class="locked-list">`;
-    lockedSections.forEach(t=>{
+    html += `<div class="locked-item"><div class="sec-label">結果 — 気づきにくい盲点</div><p>${blindPreviewText(r)}</p><p class="blur">ここから先は、あなたとその人の関係に合わせた具体的な内容です。この先は合言葉で開くことができます。</p></div>`;
+    restSections.forEach(t=>{
       html += `<div class="locked-item"><div class="sec-label">${t}</div><p class="blur">ここには、あなたとその人の関係に合わせた内容が入ります。この先は合言葉で開くことができます。</p></div>`;
     });
     html += `</div>`;
@@ -636,9 +654,6 @@ function renderResult(r){
       const sc = sceneText(s.key, r.a1Band, r.a2Band, r.a3Band);
       html += `<div class="scene-item"><div class="who">${s.who}</div><p>${sc}</p></div>`;
     });
-
-    html += `<div class="sec-label">この関係の中での位置づけ</div>`;
-    html += `<div class="box"><p>${relationalPosition(r.a1Band, r.a2Band, r.a3Band)}</p></div>`;
   }
 
   html += `<div class="disclaimer">
