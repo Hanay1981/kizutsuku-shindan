@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>なぜあの人といると傷つくのか診断 | ジブンwoカシカ</title>
+<style>
+  :root{
+    --bg:#faf7f2;
+    --ink:#1c1917;
+    --ink-soft:#4a4541;
+    --accent:#9b6b3a;
+    --accent-soft:#e8ddd0;
+    --card:#ffffff;
+    --line:#e6ded2;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Noto Serif JP","Noto Serif Japanese",serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.85;
+  }
+  .wrap{max-width:640px;margin:0 auto;padding:28px 20px 80px;}
+  .brand{
+    font-size:13px;letter-spacing:.08em;color:var(--accent);text-align:center;margin-bottom:6px;
+  }
+  h1{font-size:22px;text-align:center;margin:0 0 6px;line-height:1.5;}
+  .lead{font-size:14px;color:var(--ink-soft);text-align:center;margin-bottom:28px;}
+
+  .screen{display:none;}
+  .screen.active{display:block;}
+
+  .box{
+    background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:22px 20px;margin-bottom:18px;
+  }
+  .box h2{font-size:16px;margin:0 0 12px;border-left:4px solid var(--accent);padding-left:10px;}
+  .box ul{margin:0;padding-left:1.2em;font-size:14.5px;}
+  .box li{margin-bottom:8px;}
+  .box p{font-size:14.5px;margin:0 0 10px;}
+  .note{font-size:12.5px;color:var(--ink-soft);background:var(--accent-soft);border-radius:10px;padding:12px 14px;margin-top:4px;}
+
+  .start-btn{
+    display:block;width:100%;padding:16px;margin-top:22px;
+    background:var(--ink);color:#fff;border:none;border-radius:999px;
+    font-size:16px;font-family:inherit;cursor:pointer;letter-spacing:.04em;
+  }
+  .start-btn:active{opacity:.85;}
+
+  .progress-wrap{margin-bottom:22px;}
+  .progress-bar{height:5px;background:var(--line);border-radius:999px;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--accent);width:0%;transition:width .25s;}
+  .progress-text{font-size:12px;color:var(--ink-soft);text-align:right;margin-top:6px;}
+
+  .q-text{font-size:18px;margin:10px 0 26px;line-height:1.7;}
+  .choices{display:flex;flex-direction:column;gap:10px;}
+  .choice{
+    background:var(--card);border:1.5px solid var(--line);border-radius:12px;
+    padding:14px 16px;font-size:14.5px;cursor:pointer;transition:.15s;
+  }
+  .choice:active{background:var(--accent-soft);border-color:var(--accent);}
+
+  .result-hero{
+    background:var(--ink);color:#fff;border-radius:16px;padding:26px 22px;margin-bottom:22px;
+  }
+  .result-hero .tag{font-size:12px;color:var(--accent-soft);letter-spacing:.08em;margin-bottom:8px;}
+  .result-hero h2{font-size:21px;margin:0 0 10px;line-height:1.6;}
+  .result-hero p{font-size:14px;color:#ddd6cc;margin:0;}
+
+  .sec-label{
+    font-size:13px;color:var(--accent);letter-spacing:.1em;margin:30px 0 10px;font-weight:bold;
+  }
+  .bar-row{margin-bottom:16px;}
+  .bar-row .lbl{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:5px;}
+  .bar-track{height:10px;background:var(--line);border-radius:999px;overflow:hidden;}
+  .bar-fill{height:100%;background:var(--accent);border-radius:999px;}
+
+  .badge{
+    display:inline-block;font-size:11.5px;background:var(--accent-soft);color:var(--accent);
+    padding:3px 10px;border-radius:999px;margin-bottom:10px;
+  }
+
+  .scene-item{margin-bottom:14px;}
+  .scene-item .who{font-size:13.5px;font-weight:bold;color:var(--accent);margin-bottom:4px;}
+  .scene-item p{margin:0;font-size:14.5px;}
+
+  .disclaimer{
+    font-size:12px;color:var(--ink-soft);border-top:1px solid var(--line);
+    margin-top:36px;padding-top:16px;
+  }
+  .disclaimer p{margin:0 0 8px;}
+
+  .back-btn{
+    display:block;width:100%;padding:12px;margin-top:20px;
+    background:transparent;color:var(--ink-soft);border:none;
+    font-size:13.5px;font-family:inherit;cursor:pointer;text-align:center;
+    visibility:visible;
+  }
+  .back-btn:disabled{visibility:hidden;}
+
+  .restart{
+    display:block;width:100%;padding:14px;margin-top:24px;
+    background:transparent;color:var(--ink);border:1.5px solid var(--ink);border-radius:999px;
+    font-size:14px;font-family:inherit;cursor:pointer;
+  }
+
+  .brand a{color:inherit;text-decoration:none;}
+  .share-btn{display:block;width:100%;padding:14px;margin:18px 0 6px;background:#000;color:#fff;border:none;border-radius:999px;font-size:14.5px;font-family:inherit;text-align:center;text-decoration:none;}
+  .locked-list{position:relative;}
+  .locked-item{margin-bottom:14px;}
+  .locked-item .sec-label{margin:18px 0 6px;}
+  .locked-item .blur{filter:blur(5px);user-select:none;pointer-events:none;font-size:14.5px;color:var(--ink-soft);}
+  .unlock{background:var(--card);border:2px solid var(--accent);border-radius:14px;padding:22px 20px;margin:22px 0;}
+  .unlock h3{font-size:16px;margin:0 0 10px;}
+  .unlock p{font-size:14px;margin:0 0 10px;}
+  .unlock .note-btn{display:block;text-align:center;padding:13px;border-radius:999px;background:var(--ink);color:#fff;text-decoration:none;font-size:14.5px;margin:12px 0 16px;}
+  .unlock .row{display:flex;gap:8px;}
+  .unlock input{flex:1;min-width:0;padding:12px;border:1.5px solid var(--line);border-radius:10px;font-size:16px;font-family:inherit;}
+  .unlock button{padding:12px 16px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-size:14.5px;font-family:inherit;cursor:pointer;}
+  .unlock .err{color:#a33;font-size:13px;margin-top:8px;min-height:1em;}
+  .opened{font-size:12.5px;color:var(--accent);margin:26px 0 0;}
+  .foot-link{display:block;text-align:center;font-size:13px;color:var(--accent);margin-top:22px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="brand"><a href="https://note.com/jibunokashika" target="_blank" rel="noopener">👀 ジブンwoカシカ 👀</a></div>
+  <h1>なぜあの人といると<br>傷つくのか診断</h1>
+  <div class="lead">あの人の性格ではなく、あなたとその人の間で起きていることを可視化する</div>
+
+  <!-- INTRO -->
+  <section class="screen active" id="screen-intro">
+    <div class="box">
+      <h2>この診断でわかること</h2>
+      <ul>
+        <li>その人への気持ちが、好きと苦手の間でどれくらい揺れているか</li>
+        <li>その人との関係から、どれくらい距離を取りにくくなっているか</li>
+        <li>その人に対して、本音を言うことにどれくらい心理的なコストがかかっているか</li>
+      </ul>
+    </div>
+
+    <div class="box">
+      <h2>受け取れるもの</h2>
+      <p>気持ちの揺れ、距離の取りにくさ、本音を言うコスト。3つの軸と、比較のクセ・期待とのズレ・読めなさ・自責への転化・積み重なり感という複数の要素から導く、あなたとあの人の間の「傷つき方タイプ」。</p>
+      <p>そして、自分では気づきにくい一番の盲点と、そこへの具体的な次の一歩、家族・恋人・友人・職場の場面別の見え方、この関係の中であなたが置かれやすい位置づけまで、具体的にお伝えします。</p>
+    </div>
+
+    <div class="box">
+      <h2>その結果、こうなります</h2>
+      <p>「別に傷つくつもりはないのに、なぜかこの人の前だと消耗する」——その感覚を、相手の性格の話にせず、あなたとその人の間で実際に起きていることとして扱えるようになります。何が自分を傷つけているのかが具体的になり、同じことを繰り返さないための一歩が見えてきます。</p>
+      <div class="note">全25問・所要時間の目安は約4分です。<br>診断は無料で最後まで答えられます。タイプ名と3つの軸のスコアは、その場で見られます。盲点・次の一歩・場面別の見え方などの続きは、noteの記事（100円）にある合言葉で開けます。</div>
+    </div>
+
+    <div class="box">
+      <h2>診断前に、少しだけ</h2>
+      <ul>
+        <li>この診断は、あの人の内面や、あなたの知らないところでの振る舞いを推測させるものではありません。両価的な関係（Ambivalent Relationship）や自己サイレンシング（Silencing the Self）といった心理学の考え方を参考にしながら、「あなたとその人の間で、実際に起きていること」だけを尋ねる設問にしています。医学的な診断ではなく、あくまで「傾向」「目安」としてご覧ください</li>
+        <li>家族・恋人・友人・同僚など、どんな関係の相手でも答えられる設問にしています</li>
+        <li>直近3〜6か月くらいの、その人とのやり取りを思い浮かべて答えてください</li>
+      </ul>
+    </div>
+
+    <button class="start-btn" id="btn-start">さぁ、あの人のことを思い浮かべながら診断していきましょう！</button>
+  </section>
+
+  <!-- QUESTION -->
+  <section class="screen" id="screen-quiz">
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="progress-text" id="progress-text">1 / 25</div>
+    </div>
+    <div class="q-text" id="q-text"></div>
+    <div class="choices" id="choices"></div>
+    <button class="back-btn" id="btn-back">← 前の質問に戻る</button>
+  </section>
+
+  <!-- RESULT -->
+  <section class="screen" id="screen-result">
+    <div id="result-body"></div>
+  </section>
+
+</div>
+
+<script>
+/* ===================== 設問定義 =====================
+   この診断は「あの人」の内面を推測させるものではなく、
+   「私」から見て実際に起きている・観察できる事実だけを尋ねる設計にしています。
+   axis: A1 両価性の強さ／A2 関係の解消しにくさ／A3 声を上げることへの心理的コスト（3軸・スコア帯の元）
+   facet: F1 比較のクセ／F2 期待とのズレ／F3 読めなさ／F4 自責への転化／F5 積み重なり感（盲点検出用・軸をまたいで付与）
+   rev: true の場合は 6-score で反転してから加点（文章自体は常に肯定形） */
+const QUESTIONS = [
+  {text:"その人の良いところを思い出すと、さっきまでのモヤモヤが説明しづらくなることがある。", axis:"A1", facet:"F1", rev:false},
+  {text:"その人に「もっとこうであってほしい」と感じる場面と、「やっぱりこの人でよかった」と感じる場面が、同じ時期の中にある。", axis:"A1", facet:"F2", rev:false},
+  {text:"その人といて嬉しい日と、しんどい日の差が大きい。", axis:"A1", facet:"F3", rev:false},
+  {text:"その人のことで落ち込んだ後、「でも悪い人じゃないし」と自分の中で帳消しにしようとする。", axis:"A1", facet:"F4", rev:false},
+  {text:"その人との良い思い出があるからこそ、今のモヤモヤを誰かに話しづらい。", axis:"A1", facet:"F5", rev:false},
+  {text:"その人のことは、好きか苦手かのどちらかでだいたい説明できる。", axis:"A1", facet:"F1", rev:true},
+  {text:"その人と過ごした後、満足した気持ちと物足りない気持ちが同時に残ることがある。", axis:"A1", facet:"F2", rev:false},
+  {text:"その人の機嫌や態度が、日によって違って見える。", axis:"A1", facet:"F3", rev:false},
+  {text:"その人との間には、良いことと嫌なことの両方が積み重なってきた。", axis:"A1", facet:"F5", rev:false},
+
+  {text:"まわりの人間関係と比べて、その人との関係だけ簡単に整理できないと感じる。", axis:"A2", facet:"F1", rev:false},
+  {text:"その人との関係を自分の理想どおりに変えるのは難しいと感じる。", axis:"A2", facet:"F2", rev:false},
+  {text:"その人との関係が、この先どうなっていくのか見通しが立たない。", axis:"A2", facet:"F3", rev:false},
+  {text:"その人と距離を置けないのは、自分が我慢強すぎるからだと感じることがある。", axis:"A2", facet:"F4", rev:false},
+  {text:"その人との関係は、今さら簡単にやめられないところまで積み重なっている。", axis:"A2", facet:"F5", rev:false},
+  {text:"その人と合わないと感じたら、比較的すぐに距離を置ける関係だ。", axis:"A2", facet:"F1", rev:true},
+  {text:"その人と縁を切りたいと思っても、立場や状況がそれを許さない。", axis:"A2", facet:"F2", rev:false},
+  {text:"その人との関係がいつまで続くか、自分では決められない。", axis:"A2", facet:"F3", rev:false},
+
+  {text:"周りの人になら言えることも、その人には言えないと感じる。", axis:"A3", facet:"F1", rev:false},
+  {text:"その人に本音を言ったら、関係が今のままではいられなくなる気がする。", axis:"A3", facet:"F2", rev:false},
+  {text:"その人にどう伝えれば受け止めてもらえるか、いまだに読めない。", axis:"A3", facet:"F3", rev:false},
+  {text:"嫌な気持ちになったとき、相手に伝える前に「自分の伝え方が悪いのかも」と考える。", axis:"A3", facet:"F4", rev:false},
+  {text:"言いたいことを飲み込むことが、気づけば習慣になっている。", axis:"A3", facet:"F5", rev:false},
+  {text:"その人には、思ったことをわりとそのまま伝えられている。", axis:"A3", facet:"F1", rev:true},
+  {text:"その人との関係で、自分の希望を口に出すと分が悪くなる気がする。", axis:"A3", facet:"F2", rev:false},
+  {text:"その人が今どう思っているか分からないまま、言葉を選んでしまう。", axis:"A3", facet:"F3", rev:false},
+];
+
+const SCALE = [
+  {v:1, label:"まったく当てはまらない"},
+  {v:2, label:"あまり当てはまらない"},
+  {v:3, label:"どちらとも言えない"},
+  {v:4, label:"わりと当てはまる"},
+  {v:5, label:"とても当てはまる"},
+];
+
+let current = 0;
+let answers = new Array(QUESTIONS.length).fill(null);
+
+/* ===================== 無料で見せる部分／合言葉で開く部分 =====================
+   NOTE_URL：主力記事を公開したらURLを入れる（それまではnoteのトップへ）
+   APP_URL：Vercelの公開URL（GitHubのAboutリンクで確認してから入れる。推測で書かない）
+   PASSCODES：通る合言葉の一覧。合言葉を変えるときは、ここだけを書き換える。
+     hash  … 合言葉を NFKC正規化・小文字化・空白除去 したものの SHA-256（合言葉そのものは書かない）
+     label … 計測用の名前。開いたときに /unlock/<label> として数える
+     切り替え直後は旧い合言葉も残し、数日たったら消す。一度開いた端末は、合言葉を消しても開いたまま */
+const NOTE_URL = 'https://note.com/jibunokashika';
+const APP_URL = 'https://note.com/jibunokashika';
+const PASSCODES = [
+  /* 2026-11：ほたる（表記ゆれも通す：ほたる／ホタル／蛍／hotaru） */
+  { label:'2026-11', hash:'aba421f347ca7dc722c0cf21a5e9d400e4e37a8b4754bb0f6a8c7205a7999f1f' },
+  { label:'2026-11', hash:'75b5883435c6d2a10bd8ac3e6c565c4952f7cde6fffe6cacf6db505d0bcfcb2c' },
+  { label:'2026-11', hash:'72c56f0d272d54b9c259d996253324ae3f2013955caf27e79d46dc028fc011ec' },
+  { label:'2026-11', hash:'d384ec5aed7cc25d6bf1913030fa20f47eb96f42ddc958562add57094a8c7b52' },
+];
+const LS_ANSWERS = 'kizutsuku_answers_v1';
+const LS_UNLOCK = 'kizutsuku_unlocked_v1';
+
+function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+function lsDel(k){ try{ localStorage.removeItem(k); }catch(e){} }
+function isUnlocked(){ return !!lsGet(LS_UNLOCK); }
+/* 計測：Vercel Web Analytics の自動計測は切り、画面ごとに手で送る
+   /（最初の画面）・/result（無料の結果）・/full（続きを表示）・/unlock/<label>（合言葉で開いた瞬間） */
+window.va = window.va || function(){ (window.vaq = window.vaq || []).push(arguments); };
+function trackView(path){ try{ window.va('pageview', { route: path.replace(/\/unlock\/.*/, '/unlock/[label]'), path: path }); }catch(e){} }
+let lastView = null;
+function setView(v){
+  try{ history.replaceState(null,'', location.pathname + (v ? '#'+v : '')); }catch(e){}
+  if(v !== lastView){ lastView = v; trackView('/' + v); }
+}
+function normalizePass(t){ return (t||'').normalize('NFKC').toLowerCase().replace(/\s+/g,''); }
+async function sha256hex(t){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+async function tryUnlock(){
+  const input = document.getElementById('pass-input');
+  const err = document.getElementById('pass-err');
+  let hit = null;
+  try{
+    const h = await sha256hex(normalizePass(input.value));
+    hit = PASSCODES.find(p => p.hash === h) || null;
+  }catch(e){ hit = null; }
+  if(hit){
+    lsSet(LS_UNLOCK, hit.label);
+    lsSet(LS_ANSWERS, JSON.stringify(answers));
+    computeResult();
+    trackView('/unlock/' + hit.label);
+    const t = document.getElementById('paid-start');
+    if(t) t.scrollIntoView({behavior:'smooth'});
+  } else {
+    err.textContent = '合言葉が違うようです。noteの記事にある合言葉を、もう一度確かめてください。';
+  }
+}
+function restart(){
+  lsDel(LS_ANSWERS);
+  answers = new Array(QUESTIONS.length).fill(null);
+  current = 0;
+  setView('');
+  show(screenIntro);
+}
+
+const screenIntro = document.getElementById('screen-intro');
+const screenQuiz = document.getElementById('screen-quiz');
+const screenResult = document.getElementById('screen-result');
+
+document.getElementById('btn-start').addEventListener('click', () => {
+  show(screenQuiz);
+  renderQuestion();
+});
+
+document.getElementById('btn-back').addEventListener('click', () => {
+  if(current > 0){
+    current--;
+    renderQuestion();
+  }
+});
+
+function show(el){
+  [screenIntro, screenQuiz, screenResult].forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function renderQuestion(){
+  const q = QUESTIONS[current];
+  document.getElementById('q-text').textContent = q.text;
+  document.getElementById('progress-text').textContent = (current+1) + ' / ' + QUESTIONS.length;
+  document.getElementById('progress-fill').style.width = ((current)/QUESTIONS.length*100) + '%';
+
+  const box = document.getElementById('choices');
+  box.innerHTML = '';
+  SCALE.forEach(opt => {
+    const d = document.createElement('div');
+    d.className = 'choice';
+    if(answers[current] === opt.v) d.style.borderColor = 'var(--accent)';
+    d.textContent = opt.label;
+    d.addEventListener('click', () => selectAnswer(opt.v));
+    box.appendChild(d);
+  });
+
+  document.getElementById('btn-back').disabled = (current === 0);
+}
+
+function selectAnswer(v){
+  answers[current] = v;
+  current++;
+  if(current < QUESTIONS.length){
+    renderQuestion();
+  } else {
+    document.getElementById('progress-fill').style.width = '100%';
+    computeResult();
+  }
+}
+
+/* ===================== 採点ロジック ===================== */
+function axisScore(axisName){
+  const items = QUESTIONS.map((q,i)=>({q,i})).filter(o=>o.q.axis===axisName);
+  let sum = 0;
+  items.forEach(o=>{
+    let v = answers[o.i];
+    if(o.q.rev) v = 6 - v;
+    sum += v;
+  });
+  const min = items.length*1, max = items.length*5;
+  return Math.round((sum-min)/(max-min)*100);
+}
+
+function facetScore(facetName){
+  const items = QUESTIONS.map((q,i)=>({q,i})).filter(o=>o.q.facet===facetName);
+  let sum = 0;
+  items.forEach(o=>{
+    let v = answers[o.i];
+    if(o.q.rev) v = 6 - v;
+    sum += v;
+  });
+  const avg = sum / items.length; // 1-5
+  return Math.round((avg-1)/4*100); // 0-100
+}
+
+function band(score){
+  if(score < 40) return 'low';
+  if(score > 65) return 'high';
+  return 'mid';
+}
+function nearBoundary(score){
+  return Math.abs(score-40) <= 5 || Math.abs(score-65) <= 5;
+}
+
+const AXIS_LABEL = {
+  A1: {low:'割り切り型', mid:'ゆれ型', high:'両面型'},
+  A2: {low:'身軽', mid:'すこし縛られ', high:'抜け出しにくい'},
+  A3: {low:'言える', mid:'選びながら言う', high:'飲み込みがち'},
+};
+
+/* タイプの説明は、3軸それぞれの帯に対応する断片を組み合わせて作る（3×3×3＝27通り）。
+   断片ごとに「あなたとその人の間で、実際に起きていること」に限定した言い方にしている。 */
+const A1_FRAG = {
+  low:  'その人との関係では、好きな気持ちと嫌な気持ちが同時に強く出ることは少なく、良いときと苦しいときの差がはっきりしていて、自分の中で比較的割り切って付き合えているようです。',
+  mid:  'その人との関係では、「やっぱりこの人でよかった」と感じる場面と、モヤモヤする場面が、どちらも存在しています。気持ちが揺れることはありますが、まだ一方に大きく偏ってはいないようです。',
+  high: 'その人との関係では、強い好意と強いモヤモヤが、同じ時期に同時に存在しているようです。良い思い出があるからこそ、今の違和感を誰かに話しづらくなっている可能性があります。',
+};
+const A2_FRAG = {
+  low:  'この関係は、合わないと感じたら比較的すぐに距離を取れる、身軽な構造になっているようです。',
+  mid:  'この関係は、完全に自由に動けるわけではないものの、まったく身動きが取れないわけでもない、すこし縛られた構造にあるようです。',
+  high: 'この関係は、立場や状況、積み重ねてきた時間のために、簡単には距離を置けない、抜け出しにくい構造になっているようです。',
+};
+const A3_FRAG = {
+  low:  'そして、その人には思ったことを比較的そのまま伝えられているようで、本音を飲み込む場面は少ないタイプです。',
+  mid:  'そして、その人には言うことと飲み込むことを、その都度選びながら付き合っているようで、言えるときと言えないときが混在しています。',
+  high: 'そして、その人には本音を言うと関係が変わってしまう気がして、言いたいことを飲み込むことが習慣になっているようです。',
+};
+
+function typeName(a1,a2,a3){
+  return `${AXIS_LABEL.A1[a1]}×${AXIS_LABEL.A2[a2]}×${AXIS_LABEL.A3[a3]}タイプ`;
+}
+function typeDesc(a1,a2,a3){
+  return A1_FRAG[a1] + A2_FRAG[a2] + A3_FRAG[a3];
+}
+
+/* ===================== 盲点（F1〜F5）===================== */
+const BLINDSPOTS = {
+  F1: {
+    title:'比較してしまうクセ',
+    text:'他の人間関係や、これまでの出来事と比べてしまい、落ち込みやすい傾向が、他の要素より目立っています。なぜ比べてしまうのかは、この診断では分かりません。ただ、比較を基準にすると、この関係で実際に何が起きているかが見えにくくなります。',
+    action:'「一般的な関係と比べてどうか」ではなく、「この人との間で、実際に何が起きたか」だけを書き出してみてください。比較の基準を、よそではなく、この関係そのものに戻す一言を用意しておくと、落ち込みが軽くなります。'
+  },
+  F2: {
+    title:'期待とのズレに気づきにくいこと',
+    text:'「こうあってほしい」という期待と、実際の出来事との間にズレがある場面が、他の要素より目立っています。なぜそのズレが生まれるのかは、この診断では分かりません。',
+    action:'まず、その人に何を期待しているのかを言葉にしてみてください。その上で、それを相手に伝えるかどうかは、別の問題として分けて考えてください。期待を言語化するだけでも、モヤモヤの正体がはっきりします。'
+  },
+  F3: {
+    title:'相手の反応が読めないこと',
+    text:'その人の反応がいつ良くなるのか、いつ悪くなるのかが予測できず、読めなさに振り回されている傾向が、他の要素より目立っています。理由はこの診断では分かりません。',
+    action:'相手の反応を予測しようとするのをやめ、自分がどう対応するかのパターンを先に決めておいてください。相手がどう動くかではなく、自分がどう動くかを先に固定しておくと、読めなさへの消耗が減ります。'
+  },
+  F4: {
+    title:'傷ついた後、自分を責めてしまうこと',
+    text:'傷ついた直後に、「自分のせいかも」と自分を責める方向に転化しやすい傾向が、他の要素より目立っています。',
+    action:'傷ついた直後に自分を責める前に、「実際に起きた出来事」と「自分の責任」を分けて書き出すチェックを一度挟んでみてください。出来事と責任を分けるだけで、必要以上に自分を責めずに済みます。'
+  },
+  F5: {
+    title:'積み重なっている感覚',
+    text:'良いことと嫌なことの両方が、長い時間の中で積み重なってきた感覚が、他の要素より強く出ています。',
+    action:'積み重なった出来事を一度書き出し、「今回の一件」と「これまでの蓄積」を分けて見てください。全部をひとまとめにしてしまうと、今回の一件が必要以上に重く感じられます。'
+  },
+};
+const A3_HIGH_NOTE = '本音を言いにくい状態が続いている場合は、まずその人に直接伝える前に、安全な第三者（信頼できる人や記録）に言葉にする練習から始めてみてください。';
+
+/* ===================== 場面別（家族・恋人・友人・職場）===================== */
+const A2_FRAG_SCENE = {
+  family: {
+    low:  '家族という近さの中でも、距離を調整しやすい関係のようです。',
+    mid:  '家族だからというだけで、無理に今のままの付き合いを続けなくてもいい場面もあるはずです。',
+    high: '家族という立場上、距離を置くのが難しい相手です。距離を取るのではなく、関わり方を変えて影響を減らす工夫を考えてみてください。',
+  },
+  partner: {
+    low:  '恋人・パートナーとして、必要なら距離を置くという選択肢も、現実的に持てる関係です。',
+    mid:  '恋人・パートナーとして、簡単に離れられるわけではないものの、関係の形を見直す余地はあります。',
+    high: '恋人・パートナーとして、簡単には離れられない事情が絡んでいる可能性があります。',
+  },
+  friend: {
+    low:  '友人として、合わなければ比較的距離を置きやすい関係です。',
+    mid:  '友人として、付き合いを続けるかどうかを、まだ選べる余地が残っています。',
+    high: '友人であっても、簡単には縁を切りにくい事情があるようです。',
+  },
+  work: {
+    low:  '職場の相手として、必要な範囲での距離を取りやすい関係です。',
+    mid:  '職場の相手として、完全に避けることは難しくても、関わり方を調整する余地があります。',
+    high: '職場の相手として、立場上簡単には距離を置けない相手のようです。',
+  },
+};
+const A3_FRAG_SCENE = {
+  low:  '思ったことは、比較的そのまま伝えられる相手でもあるようです。',
+  mid:  '言うかどうかを、その都度選びながら付き合っている相手のようです。',
+  high: '本音を伝えると関係が変わる気がして、言いたいことを飲み込みがちな相手でもあるようです。',
+};
+const SCENES = [
+  {who:'家族など身近な人', key:'family'},
+  {who:'恋人やパートナー', key:'partner'},
+  {who:'友人', key:'friend'},
+  {who:'職場', key:'work'},
+];
+function sceneText(sceneKey, a1, a2, a3){
+  return A1_FRAG[a1] + A2_FRAG_SCENE[sceneKey][a2] + A3_FRAG_SCENE[a3];
+}
+
+/* ===================== 関係の中での位置づけ =====================
+   「相手が何を感じているか」は推測できないため、行動パターンから見える
+   「関係の中であなたが置かれやすい位置づけ（役割）」として、断定ではなく「〜になりやすい」の言い方で書く。 */
+const A1_POS = {
+  low:  '気持ちの整理がついた関係の中にいる',
+  mid:  '良い面と気になる面の両方を抱えながら付き合っている',
+  high: '強い好意と強い違和感を同時に抱えながら、その人のそばにいる',
+};
+const A2_POS = {
+  low:  '身動きを自由に取れる位置',
+  mid:  '少し縛られながらも、まだ動ける位置',
+  high: '簡単には動けない位置に置かれやすい',
+};
+const A3_POS = {
+  low:  '言いたいことを言える立場',
+  mid:  '言うことを選びながら付き合う立場',
+  high: '本音を飲み込みながら、その場を保っている立場',
+};
+function relationalPosition(a1,a2,a3){
+  return `あなたは、${A1_POS[a1]}まま、${A2_POS[a2]}で、${A3_POS[a3]}になりやすいようです。`;
+}
+
+function computeResult(){
+  const a1 = axisScore('A1');
+  const a2 = axisScore('A2');
+  const a3 = axisScore('A3');
+  const a1Band = band(a1);
+  const a2Band = band(a2);
+  const a3Band = band(a3);
+
+  const f1 = facetScore('F1'), f2 = facetScore('F2'), f3 = facetScore('F3'), f4 = facetScore('F4'), f5 = facetScore('F5');
+  const facets = {F1:f1,F2:f2,F3:f3,F4:f4,F5:f5};
+  const facetVals = Object.values(facets);
+  const maxF = Math.max(...facetVals);
+  const minF = Math.min(...facetVals);
+  const spreadNarrow = (maxF - minF) < 10;
+  const blindMode = spreadNarrow ? (maxF < 40 ? 'low' : 'uniform') : 'single';
+  const topFacets = Object.keys(facets).filter(k => facets[k] >= maxF - 5);
+  const blindKey = topFacets[0];
+
+  const nearAny = nearBoundary(a1) || nearBoundary(a2) || nearBoundary(a3);
+
+  const allSame = answers.every(a => a === answers[0]);
+  const variety = new Set(answers).size;
+  let reliability = '高い';
+  if(allSame || variety <= 2) reliability = '参考程度';
+
+  renderResult({a1,a2,a3,a1Band,a2Band,a3Band,blindKey,blindMode,topFacets,nearAny,reliability});
+}
+
+function renderResult(r){
+  const unlocked = isUnlocked();
+  const name = typeName(r.a1Band, r.a2Band, r.a3Band);
+  const desc = typeDesc(r.a1Band, r.a2Band, r.a3Band);
+  const firstSentence = desc.split('。')[0] + '。';
+  let html = '';
+
+  /* ---------- 無料で見せる部分 ---------- */
+  html += `<div class="result-hero">
+    <div class="tag">診断結果</div>
+    <h2>あなたとその人は「${name}」</h2>
+    <p>${unlocked ? desc : firstSentence}</p>
+  </div>`;
+
+  if(r.reliability === '参考程度'){
+    html += `<div class="badge">診断の一貫性：参考程度 — 回答の振れ幅が少なく、実際の傾向をうまく拾えていない可能性があります。できれば、その人との普段のやり取りによりしっくりくる回答で、もう一度試してみてください</div>`;
+  } else {
+    html += `<div class="badge">診断の一貫性：高い</div>`;
+  }
+  if(r.nearAny){
+    html += `<div class="badge">境目に近い結果です。もう一方の傾向も混ざっているかもしれません</div>`;
+  }
+
+  html += `<div class="sec-label">結果 — 3つの軸</div>`;
+  html += barRow('気持ちの揺れ（両価性）', r.a1);
+  html += barRow('距離の取りにくさ', r.a2);
+  html += barRow('本音を言うコスト', r.a3);
+
+  const shareText = `あの人との関係を診断したら「${name}」でした。\n感覚じゃなくて、25問で関係のクセが見える。\n#ジブンwoカシカ`;
+  const shareUrl = 'https://x.com/intent/post?text=' + encodeURIComponent(shareText) + '&url=' + encodeURIComponent(APP_URL + '?s=x');
+  html += `<a class="share-btn" href="${shareUrl}" target="_blank" rel="noopener">結果をXでシェアする</a>`;
+  html += `<div class="note" style="margin-bottom:8px">シェアされるのはタイプ名だけです。相手の名前や、答えた内容は入りません。</div>`;
+
+  /* ---------- 合言葉で開く部分 ---------- */
+  if(!unlocked){
+    const lockedSections = ['結果 — 気づきにくい盲点','行動 — 次の一歩'];
+    if(r.a2Band === 'high') lockedSections.push('距離の取り方に悩んだら');
+    lockedSections.push('場面別に見ると（家族・恋人・友人・職場）','この関係の中での位置づけ');
+    html += `<div class="locked-list">`;
+    lockedSections.forEach(t=>{
+      html += `<div class="locked-item"><div class="sec-label">${t}</div><p class="blur">ここには、あなたとその人の関係に合わせた内容が入ります。この先は合言葉で開くことができます。</p></div>`;
+    });
+    html += `</div>`;
+    html += `<div class="unlock">
+      <h3>ここから先は、あなたの気づきにくい盲点と、ラクになるための次の一歩です</h3>
+      <p>noteの記事（100円）に、続きを開く合言葉があります。合言葉を入れると、もう一度答え直さなくても、このまま続きが開きます。</p>
+      <a class="note-btn" href="${NOTE_URL}" target="_blank" rel="noopener">noteの記事を開く</a>
+      <div class="row"><input id="pass-input" type="text" inputmode="text" autocomplete="off" placeholder="合言葉を入力"><button id="pass-btn">開く</button></div>
+      <div class="err" id="pass-err"></div>
+    </div>`;
+  } else {
+    html += `<div class="opened" id="paid-start">🔓 合言葉で開いた内容です</div>`;
+
+    html += `<div class="sec-label">結果 — 気づきにくい盲点</div>`;
+    if(r.blindMode === 'low'){
+      html += `<div class="box"><p>「比較のクセ」「期待とのズレ」「読めなさ」「自責への転化」「積み重なり感」という5つの項目では、際立って気になる点は見られませんでした。この関係の中で、特定の一点に強く振り回されているわけではなさそうです（※上の「3つの軸」の結果は、これとは別の指標です）。</p></div>`;
+    } else if(r.blindMode === 'uniform'){
+      const titles = r.topFacets.map(f => BLINDSPOTS[f].title);
+      html += `<div class="box">
+        <div class="badge">特定の一点に絞れないほど、複数の面で重なっています</div>
+        <p>「${titles.join('」「')}」が、どれか一つだけ際立っているわけではなく、同じくらいのレベルで重なって出ています。一つを直せば解決するという状態ではなく、この関係全体の中に、複数の傷つき方のクセが根づいている可能性があります。</p>
+      </div>`;
+    } else {
+      const bs = BLINDSPOTS[r.blindKey];
+      html += `<div class="box">
+        <div class="badge">${bs.title}</div>
+        <p>${bs.text}</p>
+      </div>`;
+    }
+
+    html += `<div class="sec-label">行動 — 次の一歩</div>`;
+    if(r.blindMode === 'single'){
+      const bs = BLINDSPOTS[r.blindKey];
+      html += `<div class="box"><p>中でも特に「${bs.title}」が気になるポイントです。${bs.action}</p></div>`;
+    } else if(r.blindMode === 'uniform'){
+      const actions = r.topFacets.slice(0,2).map(f => BLINDSPOTS[f].action);
+      html += `<div class="box"><p>${actions.join('また、')}</p></div>`;
+    } else {
+      html += `<div class="box"><p>今のところ、特定の一点に強く振り回されている様子はありません。今の付き合い方を大きく変える必要はなさそうですが、気持ちの揺れや距離の取りにくさが強い場面があれば、そのつど「今、何が起きたか」を書き出す習慣を持っておくと安心です。</p></div>`;
+    }
+    if(r.a3Band === 'high'){
+      html += `<div class="box"><p>${A3_HIGH_NOTE}</p></div>`;
+    }
+
+    if(r.a2Band === 'high'){
+      html += `<div class="sec-label">距離の取り方に悩んだら</div>`;
+      html += `<div class="box">
+        <p>距離を置きにくい相手との付き合い方は、相手との関係によって事情が違います。友人や恋人なら、距離を置く・関係そのものを見直すという選択肢も現実的です。でも家族や職場の相手は、そう簡単に離れられないことも多いはずです。</p>
+        <ul>
+          <li>関わる深さ・頻度を、自分の裁量で少しずつ減らしてみる。全部を一気に断つ必要はありません。</li>
+          <li>「この人には、これ以上は期待しない」と先に決めておく。期待値を下げておくと、傷つく場面が減り、消耗しにくくなります。</li>
+          <li>やり取りを事務的にする。感情を込めず、必要な用件だけ淡々と返すようにすると、心理的な距離を保ちやすくなります（職場なら特に有効です）。</li>
+          <li>第三者や制度を間に挟む。家族なら他の身内に調整役を頼む、職場なら上司や人事に相談するなど、自分一人で抱えずに済む仕組みを使ってみてください。</li>
+          <li>その人との関係に使っていた時間や気持ちを、安心できる人間関係や、自分の好きなことに意識的に振り向けてみる。</li>
+        </ul>
+        <p>離れられる関係なら、距離を置く・関係を終える選択も十分にありです。離れにくい関係なら、「物理的に離れる」ではなく「心理的に距離を置く」ことを目指すだけでも、負担はかなり軽くなります。</p>
+      </div>`;
+    }
+
+    html += `<div class="sec-label">場面別に見ると</div>`;
+    SCENES.forEach(s=>{
+      const sc = sceneText(s.key, r.a1Band, r.a2Band, r.a3Band);
+      html += `<div class="scene-item"><div class="who">${s.who}</div><p>${sc}</p></div>`;
+    });
+
+    html += `<div class="sec-label">この関係の中での位置づけ</div>`;
+    html += `<div class="box"><p>${relationalPosition(r.a1Band, r.a2Band, r.a3Band)}</p></div>`;
+  }
+
+  html += `<div class="disclaimer">
+    <p>※ この診断は、両価的な関係（Ambivalent Relationship, Holt-Lunstad &amp; Uchino, 2007）や自己サイレンシング（Silencing the Self, Jack, 1991）の考え方を参考にしていますが、医学的・臨床的な診断ではありません。「傾向」「目安」としてご覧ください。</p>
+    <p>※ この内訳は、設問を意味のまとまりで分けたこの診断独自の区分です。心理学で確立された下位尺度ではありません。</p>
+  </div>`;
+
+  html += `<button class="restart" id="btn-restart">別の人で、最初から診断する</button>`;
+  html += `<a class="foot-link" href="https://note.com/jibunokashika" target="_blank" rel="noopener">👀 ジブンwoカシカ（note）で、ほかの診断も見る</a>`;
+
+  document.getElementById('result-body').innerHTML = html;
+  const pb = document.getElementById('pass-btn');
+  if(pb){
+    pb.addEventListener('click', tryUnlock);
+    document.getElementById('pass-input').addEventListener('keydown', e=>{ if(e.key==='Enter') tryUnlock(); });
+  }
+  document.getElementById('btn-restart').addEventListener('click', restart);
+  setView(unlocked ? 'full' : 'result');
+  show(screenResult);
+}
+
+function barRow(label, score){
+  return `<div class="bar-row">
+    <div class="lbl"><span>${label}</span><span>${score}</span></div>
+    <div class="bar-track"><div class="bar-fill" style="width:${score}%"></div></div>
+  </div>`;
+}
+(function resume(){
+  let saved = null;
+  try{ saved = JSON.parse(lsGet(LS_ANSWERS)); }catch(e){ saved = null; }
+  if(Array.isArray(saved) && saved.length === QUESTIONS.length && saved.every(v => v>=1 && v<=5)){
+    answers = saved;
+    current = QUESTIONS.length;
+    computeResult();
+  } else {
+    setView('');
+  }
+})();
+</script>
+<script defer src="/_vercel/insights/script.js" data-disable-auto-track="1"></script>
+</body>
+</html>
