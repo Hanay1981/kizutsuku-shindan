@@ -444,19 +444,52 @@ const BLINDSPOTS = {
 };
 const A3_HIGH_NOTE = '本音を言いにくい状態が続いている場合は、まずその人に直接伝える前に、安全な第三者（信頼できる人や記録）に言葉にする練習から始めてみてください。';
 
-/* 盲点の「冒頭だけ見せる」プレビュー。無料部分で、続きが気になる程度に最初の1〜2文だけを見せる。 */
-function blindPreviewText(r){
-  let fullText;
+function blindFullText(r){
   if(r.blindMode === 'single'){
-    fullText = BLINDSPOTS[r.blindKey].text;
+    return BLINDSPOTS[r.blindKey].text;
   } else if(r.blindMode === 'uniform'){
     const titles = r.topFacets.map(f => BLINDSPOTS[f].title);
-    fullText = `「${titles.join('」「')}」が、どれか一つだけ際立っているわけではなく、同じくらいのレベルで重なって出ています。`;
+    return `「${titles.join('」「')}」が、どれか一つだけ際立っているわけではなく、同じくらいのレベルで重なって出ています。`;
   } else {
-    fullText = '「比較のクセ」「期待とのズレ」「読めなさ」「自責への転化」「積み重なり感」という5つの項目では、際立って気になる点は見られませんでした。';
+    return '「比較のクセ」「期待とのズレ」「読めなさ」「自責への転化」「積み重なり感」という5つの項目では、際立って気になる点は見られませんでした。';
   }
+}
+/* 盲点の「冒頭だけ見せる」プレビュー。無料部分で、続きが気になる程度に最初の1〜2文だけを見せる。残りはぼかしボリュームの算出に使う。 */
+function blindPreviewText(r){
+  const fullText = blindFullText(r);
   const sentences = fullText.split('。').filter(s => s.length > 0);
   return sentences.slice(0, 2).join('。') + '。';
+}
+
+/* ロック中のぼかしボリュームを、実際の本文量に合わせて算出するためのプレーンテキスト生成（表示はせず、文字数だけ使う） */
+function actionFullText(r){
+  let t;
+  if(r.blindMode === 'single'){
+    const bs = BLINDSPOTS[r.blindKey];
+    t = `中でも特に「${bs.title}」が気になるポイントです。${bs.action}`;
+  } else if(r.blindMode === 'uniform'){
+    const actions = r.topFacets.slice(0,2).map(f => BLINDSPOTS[f].action);
+    t = actions.join('また、');
+  } else {
+    t = '今のところ、特定の一点に強く振り回されている様子はありません。今の付き合い方を大きく変える必要はなさそうですが、気持ちの揺れや距離の取りにくさが強い場面があれば、そのつど「今、何が起きたか」を書き出す習慣を持っておくと安心です。';
+  }
+  if(r.a3Band === 'high'){
+    t += A3_HIGH_NOTE;
+  }
+  return t;
+}
+function distanceFullText(){
+  return '距離を置きにくい相手との付き合い方は、相手との関係によって事情が違います。友人や恋人なら、距離を置く・関係そのものを見直すという選択肢も現実的です。でも家族や職場の相手は、そう簡単に離れられないことも多いはずです。関わる深さ・頻度を、自分の裁量で少しずつ減らしてみる。全部を一気に断つ必要はありません。「この人には、これ以上は期待しない」と先に決めておく。期待値を下げておくと、傷つく場面が減り、消耗しにくくなります。やり取りを事務的にする。感情を込めず、必要な用件だけ淡々と返すようにすると、心理的な距離を保ちやすくなります（職場なら特に有効です）。第三者や制度を間に挟む。家族なら他の身内に調整役を頼む、職場なら上司や人事に相談するなど、自分一人で抱えずに済む仕組みを使ってみてください。その人との関係に使っていた時間や気持ちを、安心できる人間関係や、自分の好きなことに意識的に振り向けてみる。離れられる関係なら、距離を置く・関係を終える選択も十分にありです。離れにくい関係なら、「物理的に離れる」ではなく「心理的に距離を置く」ことを目指すだけでも、負担はかなり軽くなります。';
+}
+/* 実際の文字数ぶんだけ埋める、意味のないダミー本文（ぼかして表示するためのボリューム調整用） */
+function dummyText(targetLen){
+  const unit = 'この先には、あなたとその人の間で実際に起きていることに合わせた内容が入ります。読み進めると、次に何をすればいいかが見えてきます。';
+  let out = '';
+  while(out.length < targetLen){ out += unit; }
+  out = out.slice(0, Math.max(targetLen, 30));
+  const lastPeriod = out.lastIndexOf('。');
+  if(lastPeriod > targetLen * 0.5){ out = out.slice(0, lastPeriod + 1); }
+  return out;
 }
 
 /* ===================== 場面別（家族・恋人・友人・職場）===================== */
@@ -584,14 +617,28 @@ function renderResult(r){
 
   /* ---------- 合言葉で開く部分 ---------- */
   if(!unlocked){
-    const restSections = ['行動 — 次の一歩'];
-    if(r.a2Band === 'high') restSections.push('距離の取り方に悩んだら');
-    restSections.push('場面別に見ると（家族・恋人・友人・職場）');
     html += `<div class="locked-list">`;
-    html += `<div class="locked-item"><div class="sec-label">結果 — 気づきにくい盲点</div><p>${blindPreviewText(r)}</p><p class="blur">ここから先は、あなたとその人の関係に合わせた具体的な内容です。この先は合言葉で開くことができます。</p></div>`;
-    restSections.forEach(t=>{
-      html += `<div class="locked-item"><div class="sec-label">${t}</div><p class="blur">ここには、あなたとその人の関係に合わせた内容が入ります。この先は合言葉で開くことができます。</p></div>`;
+
+    const blindFull = blindFullText(r);
+    const blindPreview = blindPreviewText(r);
+    const blindRestLen = Math.max(blindFull.length - blindPreview.length, 40);
+    html += `<div class="locked-item"><div class="sec-label">結果 — 気づきにくい盲点</div><p>${blindPreview}</p><p class="blur">${dummyText(blindRestLen)}</p></div>`;
+
+    const actionFull = actionFullText(r);
+    html += `<div class="locked-item"><div class="sec-label">行動 — 次の一歩</div><p class="blur">${dummyText(actionFull.length)}</p></div>`;
+
+    if(r.a2Band === 'high'){
+      const distFull = distanceFullText();
+      html += `<div class="locked-item"><div class="sec-label">距離の取り方に悩んだら</div><p class="blur">${dummyText(distFull.length)}</p></div>`;
+    }
+
+    html += `<div class="locked-item"><div class="sec-label">場面別に見ると（家族・恋人・友人・職場）</div>`;
+    SCENES.forEach(s=>{
+      const sc = sceneText(s.key, r.a1Band, r.a2Band, r.a3Band);
+      html += `<div class="scene-item"><div class="who">${s.who}</div><p class="blur">${dummyText(sc.length)}</p></div>`;
     });
+    html += `</div>`;
+
     html += `</div>`;
     html += `<div class="unlock">
       <h3>ここから先は、あなたの気づきにくい盲点と、ラクになるための次の一歩です</h3>
